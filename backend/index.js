@@ -1,4 +1,5 @@
 import express from 'express';
+import 'dotenv/config';
 import { PORT, mongoDBURL } from './config.js';
 import mongoose from 'mongoose';
 import booksRoute from './routes/booksRoute.js';
@@ -27,6 +28,7 @@ app.get('/', (request, response) => {
 });
 
 app.use('/books', booksRoute);
+
 
 mongoose
   .connect(mongoDBURL)
