@@ -1,4 +1,4 @@
-[Production-Grade 3‑Tier MERN Deployment on AWS with Docker, Nginx, CI/CD & Terraform](https://medium.com/@ravikantdiwakar/production-grade-3-tier-mern-deployment-on-aws-with-docker-nginx-ci-cd-terraform-42c081047e12)
+[Production-Grade 3‑Tier MERN Deployment on AWS with Docker, Nginx, CI/CD & Terraform ↗](https://medium.com/@ravikantdiwakar/production-grade-3-tier-mern-deployment-on-aws-with-docker-nginx-ci-cd-terraform-42c081047e12)
 
 # Book Store MERN Stack
 
