@@ -1,10 +1,8 @@
-[Production-Grade 3‑Tier MERN Deployment on AWS with Docker, Nginx, CI/CD & Terraform ↗](https://medium.com/@ravikantdiwakar/production-grade-3-tier-mern-deployment-on-aws-with-docker-nginx-ci-cd-terraform-42c081047e12)
 
-# Book Store MERN Stack
 
-A full-stack **MERN** (MongoDB, Express, React, Node.js) application for managing books with complete CRUD operations.
+# Book Store App
 
-![MERN Stack](https://img.shields.io/badge/MERN-Stack-green)
+A full-stack Book application for managing books with complete CRUD operations.
 
 ## Features
 
@@ -96,7 +94,4 @@ Book-Store-MERN-Stack/
 | PUT | `/books/:id` | Update a book |
 | DELETE | `/books/:id` | Delete a book |
 
-## Troubleshooting
 
-- **Database Connection Error**: If you see `ENOTFOUND` or connection timeout errors, ensure your `MONGODB_URL` in `.env` is correct and your IP address is whitelisted in MongoDB Atlas.
-- **CORS Errors**: If the frontend cannot access the backend, ensure CORS is correctly configured in `backend/index.js` to allow the frontend's origin.
