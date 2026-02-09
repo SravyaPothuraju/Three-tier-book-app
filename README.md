@@ -1,4 +1,5 @@
-
+Note: The base application used in this project was adapted from an existing source.  
+My primary focus in this repository is on **Cloud, AWS architecture, and infrastructure setup** rather than application development.
 
 # Book Store App
 
@@ -367,3 +368,8 @@ Kudos for building this the right way — no public EC2s, no SSH, and a clean se
 
 
 ✨ Tada! You’re officially cloud-architect material. Keep building, keep breaking, and keep learning! 🚀
+
+
+this deployment was performed using **manual infrastructure configuration** to demonstrate foundational AWS concepts.
+
+🚀 A sequel project is coming soon where the entire deployment process will be **fully automated**, replacing manual intervention with automated infrastructure workflows.
