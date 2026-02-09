@@ -258,19 +258,19 @@ AMI: Amazon Linux 2
 
 Instance type: t3.micro
 
+#### execute these commands once you connect to your web ec2 instance
+
 User Data
 
-#!/bin/bash
-yum update -y
-curl -fsSL https://rpm.nodesource.com/setup_18.x | bash -
-yum install -y nodejs git
-
-cd /home/ec2-user
-git clone https://github.com/SravyaPothuraju/Three-tier-book-app.git
-cd Three-tier-book-app/frontend
-
-npm install
-npm run dev -- --host
+            #!/bin/bash
+            yum update -y
+            curl -fsSL https://rpm.nodesource.com/setup_18.x | bash -
+            yum install -y nodejs git
+            cd /home/ec2-user
+            git clone https://github.com/SravyaPothuraju/Three-tier-book-app.git
+            cd Three-tier-book-app/frontend
+            npm install
+            npm run dev -- --host
 
 App Tier EC2 (Backend)
 
@@ -284,19 +284,17 @@ Security Group: App EC2 SG
 
 IAM Role: SSM Role
 
-User Data
+#### execute these commands once you connect to your App ec2 instance
 
-#!/bin/bash
-yum update -y
-curl -fsSL https://rpm.nodesource.com/setup_18.x | bash -
-yum install -y nodejs git
-
-cd /home/ec2-user
-git clone https://github.com/SravyaPothuraju/Three-tier-book-app.git
-cd Three-tier-book-app/backend
-
-npm install
-node index.js
+            #!/bin/bash
+            yum update -y
+            curl -fsSL https://rpm.nodesource.com/setup_18.x | bash -
+            yum install -y nodejs git
+            cd /home/ec2-user
+            git clone https://github.com/SravyaPothuraju/Three-tier-book-app.git
+            cd Three-tier-book-app/backend
+            npm install
+            node index.js
 
 9️⃣ Application Load Balancer (ALB)
 
