@@ -86,290 +86,251 @@ A full-stack Book application for managing books with complete CRUD operations.
 | PUT | `/books/:id` | Update a book |
 | DELETE | `/books/:id` | Delete a book |
 
-###Deployment on AWS 
 
-🚀 Three-Tier Application Deployment on AWS
+📚 Three-Tier Book App – AWS Deployment
 
-This guide explains how to deploy the Three-Tier Book App on AWS using a secure, highly available architecture with VPC, Application Load Balancer, private EC2 instances, NAT Gateway, IAM roles, and MongoDB Atlas.
+This project demonstrates a production-style three-tier MERN application deployed on AWS using best practices for network isolation, security, and high availability. The application is hosted entirely inside a custom VPC and exposed to the internet only through an Application Load Balancer (ALB).
 
-🧱 Architecture Overview
+🧩 Project Overview
 
-Frontend: React + Vite (Port 5173)
+Frontend: React (Vite) – Web Tier
 
-Backend: Node.js + Express (Port 3000)
+Backend: Node.js + Express – Application Tier
 
-Database: MongoDB Atlas (managed external service)
+Database: MongoDB Atlas (Managed External Service)
 
-Load Balancer: Internet-facing Application Load Balancer
+Cloud Provider: AWS
 
-Networking: Custom VPC with public and private subnets across 2 Availability Zones
+         Architecture Type: Three-Tier Architecture
 
-Security: No public EC2, no SSH, access via AWS Systems Manager (SSM)
+         Availability: Multi-AZ (High Availability)
 
-🏗️ High-Level Architecture Flow
+         Security: No public EC2, no SSH, IAM + AWS Systems Manager
+
+🏗️ Architecture Overview
+
+The application is deployed inside a custom Amazon VPC spanning two Availability Zones. The architecture is logically divided into three tiers:
+
+1️⃣ Web Tier (Frontend)
+
+         React application
+
+         Runs on EC2 instances in private subnets
+
+         Receives traffic only from the Application Load Balancer
+
+2️⃣ Application Tier (Backend)
+
+         Node.js + Express API
+
+         Runs on EC2 instances in private subnets
+
+         Receives traffic only from the Web Tier
+
+3️⃣ Data Tier
+
+         MongoDB Atlas (managed external database)
+
+         Accessed securely over outbound HTTPS
+
+         No database hosted on EC2
+
+🌐 High-Level Architecture Flow
 User
- → Application Load Balancer (Public)
- → Web EC2 (React – 5173, Private)
- → App EC2 (Node – 3000, Private)
- → MongoDB Atlas (External Managed DB)
+ → Application Load Balancer (Public Subnets)
+ → Web EC2 (React – Private Subnets)
+ → App EC2 (Node.js – Private Subnets)
+ → MongoDB Atlas (External Managed Service)
 
-1️⃣ Create a Custom VPC
+🔐 Key AWS Components Used
 
-Open AWS VPC Console
+         VPC – Network isolation
 
-Create a VPC
+         Subnets – Tier-based segmentation
 
-CIDR block: 10.0.0.0/16
+         Internet Gateway (IGW) – Public access for ALB
 
-Enable DNS hostnames
+         NAT Gateway – Outbound internet access for private EC2
 
-Enable DNS resolution
+         Route Tables – Traffic control
 
-This VPC will host all AWS resources for the application.
+         Security Groups – Least-privilege networking
 
-2️⃣ Create Subnets (Multi-AZ)
+         Application Load Balancer – Traffic distribution
 
-Create subnets across two Availability Zones.
+         IAM Role (AmazonSSMManagedInstanceCore) – Secure EC2 access
 
-Public Subnets (for ALB)
+         AWS Systems Manager (SSM) – No SSH access
 
-Public Subnet AZ-1 → 10.0.1.0/24
+🛡️ Security Design Highlights
 
-Public Subnet AZ-2 → 10.0.2.0/24
+         No EC2 instance has a public IP
 
-Private Web Subnets (Frontend)
+         No SSH or port 22 access
 
-Web Subnet AZ-1 → 10.0.11.0/24
+         All EC2 access via AWS Systems Manager
 
-Web Subnet AZ-2 → 10.0.12.0/24
+         Strict Security Group rules between tiers
 
-Private App Subnets (Backend)
+         Database managed externally (MongoDB Atlas)
 
-App Subnet AZ-1 → 10.0.21.0/24
+⚙️ How the Application Works
 
-App Subnet AZ-2 → 10.0.22.0/24
+         A user accesses the application using the ALB DNS name
 
-⚠️ There are no database subnets because MongoDB Atlas is external.
+         The ALB forwards requests to the Web Tier EC2 instances
 
-3️⃣ Internet Gateway (IGW)
+         The React frontend sends API requests to the Backend EC2
 
-Create an Internet Gateway
+         The backend processes requests and connects to MongoDB Atlas
 
-Attach it to the VPC
+Responses flow back through the same path
 
-The IGW allows internet access only for public resources such as the ALB.
+🚀 Deployment Steps (Step-by-Step)
+Step 1: Create a Custom VPC
 
-4️⃣ NAT Gateway
+         CIDR: 10.0.0.0/16
 
-Allocate an Elastic IP
+         Enable DNS hostnames and resolution
 
-Create a NAT Gateway in Public Subnet AZ-1
+Step 2: Create Subnets (2 AZs)
 
-Attach the Elastic IP
+         Public Subnets (ALB):
 
-The NAT Gateway allows private EC2 instances to access the internet outbound only (npm install, MongoDB Atlas, updates).
+         10.0.1.0/24
 
-5️⃣ Route Tables
-Public Route Table
+         10.0.2.0/24
 
-Associate with:
+         Private Web Subnets (Frontend):
 
-Public Subnet AZ-1
+         10.0.11.0/24
 
-Public Subnet AZ-2
+         10.0.12.0/24
 
-Route:
+         Private App Subnets (Backend):
 
-0.0.0.0/0 → Internet Gateway
+         10.0.21.0/24
 
-Private Route Table
+         10.0.22.0/24
 
-Associate with:
+Step 3: Create and Attach Internet Gateway
 
-Web Subnets
+         Attach IGW to the VPC
 
-App Subnets
+         Used only by public subnets
 
-Route:
+Step 4: Create NAT Gateway
 
-0.0.0.0/0 → NAT Gateway
+         Create in a public subnet
 
-6️⃣ Security Groups
-ALB Security Group
+         Attach Elastic IP
 
-Inbound
+         Enables outbound internet access for private EC2
 
-HTTP (80) from 0.0.0.0/0
+         Step 5: Configure Route Tables
 
-Outbound
+         Public Route Table
 
-Port 5173 → Web EC2 Security Group
+         0.0.0.0/0 → Internet Gateway
 
-Web EC2 Security Group
 
-Inbound
+         Private Route Table
 
-Port 5173 only from ALB Security Group
+         0.0.0.0/0 → NAT Gateway
 
-Outbound
+Step 6: Create Security Groups
 
-Port 3000 → App EC2 Security Group
+         ALB SG
 
-HTTPS (443) → Internet (via NAT)
+         Inbound: HTTP (80) from anywhere
 
-App EC2 Security Group
+         Outbound: Port 5173 to Web SG
 
-Inbound
+         Web EC2 SG
 
-Port 3000 only from Web EC2 Security Group
+         Inbound: 5173 from ALB SG
 
-Outbound
+         Outbound: 3000 to App SG, 443 to internet
 
-HTTPS (443) → 0.0.0.0/0 (MongoDB Atlas)
+         App EC2 SG
 
-7️⃣ IAM Role for EC2 (No SSH)
+         Inbound: 3000 from Web SG
 
-Create an IAM role:
+         Outbound: 443 to MongoDB Atlas
 
-Service: EC2
+Step 7: Create IAM Role for EC2
 
-Policy attached:
+         Role: EC2
 
-AmazonSSMManagedInstanceCore
+         Policy: AmazonSSMManagedInstanceCore
 
-Attach this role to all EC2 instances.
+         Attach to all EC2 instances
 
-✅ Enables AWS Systems Manager Session Manager
-❌ No SSH keys or port 22 required
+Step 8: Launch EC2 Instances
 
-8️⃣ Launch EC2 Instances
-Web Tier EC2 (Frontend)
+         Web Tier EC2
 
-Instances: 2 (one per AZ)
+         Private Web Subnets
 
-Subnet: Private Web Subnets
+         No public IP
 
-Public IP: ❌ No
+         React app served as production build
 
-Security Group: Web EC2 SG
+         App Tier EC2
 
-IAM Role: SSM Role
+         Private App Subnets
 
-AMI: Amazon Linux 2
+         No public IP
 
-Instance type: t3.micro
+         Node.js backend running on port 3000
 
-#### execute these commands once you connect to your web ec2 instance
+Step 9: Configure Application Load Balancer
 
-User Data
+         Internet-facing
 
-            #!/bin/bash
-            yum update -y
-            curl -fsSL https://rpm.nodesource.com/setup_18.x | bash -
-            yum install -y nodejs git
-            cd /home/ec2-user
-            git clone https://github.com/SravyaPothuraju/Three-tier-book-app.git
-            cd Three-tier-book-app/frontend
-            npm install
-            npm run dev -- --host
+         Public subnets
 
-App Tier EC2 (Backend)
+         Target Group:
 
-Instances: 2 (one per AZ)
+         Type: Instance
 
-Subnet: Private App Subnets
+         Port: 80 or 3000 (depending on frontend server)
 
-Public IP: ❌ No
+         Health check path: /
 
-Security Group: App EC2 SG
+Step 10: Configure MongoDB Atlas
 
-IAM Role: SSM Role
+         Create cluster
 
-#### execute these commands once you connect to your App ec2 instance
+         Allow network access from NAT Gateway IP or 0.0.0.0/0
 
-            #!/bin/bash
-            yum update -y
-            curl -fsSL https://rpm.nodesource.com/setup_18.x | bash -
-            yum install -y nodejs git
-            cd /home/ec2-user
-            git clone https://github.com/SravyaPothuraju/Three-tier-book-app.git
-            cd Three-tier-book-app/backend
-            npm install
-            node index.js
+Set backend environment variables:
 
-9️⃣ Application Load Balancer (ALB)
+         MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/bookdb
+         PORT=3000
 
-Create an Application Load Balancer
+Step 11: Access EC2 via SSM
 
-Internet-facing
+AWS Console → Systems Manager → Session Manager
 
-Select both public subnets
+Start session (no SSH keys required)
 
-Attach ALB Security Group
+🧪 How to Verify Deployment
 
-Target Group
+Check Target Group → Healthy
 
-Target type: Instance
+         Open browser:
 
-Protocol: HTTP
+         http://<ALB-DNS-NAME>
 
-Port: 5173
 
-Health check path: /
+Application should load successfully
 
-ALB forwards traffic only to Web EC2 instances.
 
-🔟 MongoDB Atlas Configuration
+“This project implements a secure, highly available three-tier MERN architecture on AWS using a public Application Load Balancer, private EC2 instances managed through IAM and AWS Systems Manager, and MongoDB Atlas as a managed database service.”
 
-Create a MongoDB Atlas cluster
+🎉 Final Note
 
-Network Access:
-
-Allow 0.0.0.0/0 (demo) or NAT Elastic IP
-
-Create database user
-
-Backend Environment Variables
-MONGO_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/bookdb
-PORT=3000
-
-
-The backend connects securely over HTTPS (443).
-
-1️⃣1️⃣ Accessing EC2 Instances (SSM)
-
-Open AWS Systems Manager
-
-Go to Session Manager
-
-Start a session with Web or App EC2
-
-No SSH, no key pairs, no open ports.
-
-🔒 Security & Best Practices
-
-No public EC2 instances
-
-No SSH access
-
-Strict security group rules
-
-Private subnets for all compute
-
-Managed database (MongoDB Atlas)
-
-High availability across two AZs
-
-🎉 Congratulations!
-
-You’ve successfully designed and documented a secure, highly available three-tier MERN application on AWS using industry best practices. This project demonstrates real-world cloud architecture skills, including network isolation with VPCs and subnets, secure access using IAM and AWS Systems Manager, traffic management with an Application Load Balancer, and modern database integration with MongoDB Atlas.
-
-Kudos for building this the right way — no public EC2s, no SSH, and a clean separation of tiers across multiple Availability Zones. This architecture is interview-ready and resume-worthy.
-
-
-✨ Tada! You’re officially cloud-architect material. Keep building, keep breaking, and keep learning! 🚀
-
-
-this deployment was performed using **manual infrastructure configuration** to demonstrate foundational AWS concepts.
-
-🚀 A sequel project is coming soon where the entire deployment process will be **fully automated**, replacing manual intervention with automated infrastructure workflows.
+✨ Tada!
+You’ve successfully built and deployed a real-world, production-aligned AWS architecture with proper security, scalability, and clean tier separation.
+Kudos for doing it the right way — this project is resume-ready and interview-ready. 🚀
