@@ -275,12 +275,40 @@ Step 8: Launch EC2 Instances
          No public IP
 
          React app served as production build
+          
+         Run this cmnds inside your Web ec2:
+               #!/bin/bash
+               yum update -y
+               curl -fsSL https://rpm.nodesource.com/setup_18.x | bash -
+               yum install -y nodejs git
+
+               cd /home/ec2-user
+               git clone https://github.com/SravyaPothuraju/Three-tier-book-app.git
+               cd Three-tier-book-app/frontend
+
+               npm install
+               npm run dev -- --host
+
 
          App Tier EC2
 
          Private App Subnets
 
          No public IP
+
+         Run this cmnds inside your Web ec2:
+              #!/bin/bash
+               yum update -y
+               curl -fsSL https://rpm.nodesource.com/setup_18.x | bash -
+               yum install -y nodejs git
+
+               cd /home/ec2-user
+               git clone https://github.com/SravyaPothuraju/Three-tier-book-app.git
+               cd Three-tier-book-app/backend
+
+               npm install
+               node index.js
+
 
          Node.js backend running on port 3000
 
